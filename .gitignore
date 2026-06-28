@@ -1,0 +1,9 @@
+.pio/
+.vscode/
+.idea/
+*.bin
+*.elf
+*.map
+*.log
+*.tar.gz
+compile_commands.json
