@@ -14,6 +14,7 @@ file included by `config.h`.
 - `sleep.h`: battery-based sleep interval helpers and safe minute-to-microsecond conversion.
 - `wifi.h`: connect to one of multiple configured Wi-Fi networks.
 - `email_helpers.h`: HTML escaping and commit-message-to-bullet-list formatting.
+- `templates/`: public-safe `config.h` templates for station projects.
 
 All public symbols live in the `meteo` namespace.
 
@@ -149,6 +150,24 @@ buildable without an external dependency. A safe migration path is:
 Keep each station's `config.h` project-specific. Device names, pins, endpoints,
 tokens, credentials, and per-station thresholds belong there, not in this shared
 library.
+
+## Config Templates
+
+The `templates/` folder contains public-safe config templates:
+
+- `config_home.template.h`: indoor station without display.
+- `config_home_display.template.h`: indoor station with e-paper display.
+- `config_out.template.h`: outdoor BME280 station.
+
+Use them as a schema for private project configs:
+
+```powershell
+Copy-Item templates\config_home.template.h ..\meteo_station_home\src\config.template.h
+```
+
+Then keep the real `src/config.h` private in each project. The template should
+show all required macros, globals, and sections, but every credential, token,
+API key, URL, location, and device-specific value must stay as a placeholder.
 
 ## Public Repo Checklist
 
