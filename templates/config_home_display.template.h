@@ -81,7 +81,7 @@ inline constexpr char FW_BIN_URL_CLOUDFLARE_R2[]     = "https://pub-" CLOUDFLARE
 
 
 // Logging
-#define ENABLE_GRAFANA_LOGGING     0
+#define ENABLE_GRAFANA_LOGGING     0   // 0 = off, 1 = on
 #define GRAFANA_URL                "https://logs.example.com/loki/api/v1/push"
 #define GRAFANA_USER               "<grafana-user>"
 #define GRAFANA_TOKEN              "<grafana-token>"
