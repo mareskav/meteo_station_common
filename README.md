@@ -1,4 +1,4 @@
-# MeteoStationCommon
+# meteo-station-common
 
 Shared header-only helpers for ESP32 PlatformIO meteo station projects.
 
