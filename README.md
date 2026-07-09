@@ -11,6 +11,7 @@ file included by `config.h`.
 ## What Is Included
 
 - `battery.h`: battery voltage and percentage helpers.
+- `co2_sensor.h`: SCD41 setup, low-power CO2 measurement, and power-down helpers.
 - `sleep.h`: battery-based sleep interval helpers and safe minute-to-microsecond conversion.
 - `wifi.h`: connect to one of multiple configured Wi-Fi networks.
 - `email_helpers.h`: HTML escaping and commit-message-to-bullet-list formatting.
@@ -39,6 +40,7 @@ Then include only the helpers needed by the project:
 
 ```cpp
 #include <meteo_station_common/battery.h>
+#include <meteo_station_common/co2_sensor.h>
 #include <meteo_station_common/email_helpers.h>
 #include <meteo_station_common/sleep.h>
 #include <meteo_station_common/wifi.h>
@@ -118,6 +120,22 @@ policy:
 `meteo::minutesToWakeupUs(minutes)` converts minutes to microseconds using
 64-bit arithmetic. Use it with `esp_sleep_enable_timer_wakeup()` to avoid
 overflow on long sleep intervals.
+
+### CO2 Sensor
+
+`meteo::setupScd41LowPower(sdaPin, sclPin)` initializes the shared SCD41 sensor,
+starts low-power periodic measurement, and retries I2C setup when needed.
+
+`meteo::measureScd41CO2(co2Ppm)` waits for a fresh CO2 value, stores it in the
+provided reference, stops measurement, and powers the sensor down.
+
+`meteo::setupScd41SingleShot(sdaPin, sclPin)` initializes the shared SCD41
+sensor without starting periodic measurement.
+
+`meteo::measureScd41SingleShotCO2(co2Ppm)` requests one SCD41 single-shot CO2
+measurement, waits for the result, stores it in the provided reference, and
+powers the sensor down. This is intended for battery-powered stations where
+short awake time matters more than periodic sensor operation.
 
 ### Wi-Fi
 
