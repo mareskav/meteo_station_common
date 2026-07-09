@@ -124,13 +124,15 @@ overflow on long sleep intervals.
 ### CO2 Sensor
 
 `meteo::setupScd41LowPower(sdaPin, sclPin)` initializes the shared SCD41 sensor,
-starts low-power periodic measurement, and retries I2C setup when needed.
+starts low-power periodic measurement, wakes the sensor after a previous
+power-down, and retries I2C setup when needed.
 
 `meteo::measureScd41CO2(co2Ppm)` waits for a fresh CO2 value, stores it in the
 provided reference, stops measurement, and powers the sensor down.
 
 `meteo::setupScd41SingleShot(sdaPin, sclPin)` initializes the shared SCD41
-sensor without starting periodic measurement.
+sensor without starting periodic measurement. It initializes the I2C bus and
+wakes the sensor after a previous power-down.
 
 `meteo::measureScd41SingleShotCO2(co2Ppm)` requests one SCD41 single-shot CO2
 measurement, waits for the result, stores it in the provided reference, and

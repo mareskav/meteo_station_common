@@ -12,7 +12,23 @@ inline SCD4x scd41;
 
 inline constexpr uint32_t SCD41_CO2_MEASUREMENT_TIMEOUT_MS = 45000;
 inline constexpr uint32_t SCD41_SINGLE_SHOT_TIMEOUT_MS = 7000;
+inline constexpr uint16_t SCD41_I2C_ADDRESS = 0x62;
 inline constexpr uint16_t SCD41_POWER_DOWN_COMMAND = 0x36E0;
+inline constexpr uint16_t SCD41_WAKE_UP_COMMAND = 0x36F6;
+inline constexpr uint16_t SCD41_WAKE_UP_DELAY_MS = 30;
+
+inline void sendRawScd41Command(TwoWire& wire, uint16_t command) {
+    wire.beginTransmission(SCD41_I2C_ADDRESS);
+    wire.write(command >> 8);
+    wire.write(command & 0xFF);
+    wire.endTransmission();
+}
+
+inline void wakeUpScd41(TwoWire& wire = Wire,
+                        uint16_t wakeDelayMs = SCD41_WAKE_UP_DELAY_MS) {
+    sendRawScd41Command(wire, SCD41_WAKE_UP_COMMAND);
+    delay(wakeDelayMs);
+}
 
 inline void powerDownScd41(SCD4x& sensor = scd41, bool stopPeriodicMeasurement = true) {
     if (stopPeriodicMeasurement) {
@@ -30,7 +46,9 @@ inline bool setupScd41LowPower(uint8_t sdaPin,
                                bool autoCalibrate = true) {
     sendLog("info", "SCD41 setup");
 
-    // Give the sensor a short settle time after power-up and I2C init.
+    wire.begin(sdaPin, sclPin);
+    wakeUpScd41(wire);
+    // Give the sensor a short settle time after power-up or wake-up.
     delay(150);
 
     for (uint8_t attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -49,6 +67,7 @@ inline bool setupScd41LowPower(uint8_t sdaPin,
         wire.end();
         delay(50);
         wire.begin(sdaPin, sclPin);
+        wakeUpScd41(wire);
         delay(150);
     }
 
@@ -64,7 +83,9 @@ inline bool setupScd41SingleShot(uint8_t sdaPin,
                                  bool autoCalibrate = true) {
     sendLog("info", "SCD41 setup");
 
-    // Give the sensor a short settle time after power-up and I2C init.
+    wire.begin(sdaPin, sclPin);
+    wakeUpScd41(wire);
+    // Give the sensor a short settle time after power-up or wake-up.
     delay(150);
 
     for (uint8_t attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -77,6 +98,7 @@ inline bool setupScd41SingleShot(uint8_t sdaPin,
         wire.end();
         delay(50);
         wire.begin(sdaPin, sclPin);
+        wakeUpScd41(wire);
         delay(150);
     }
 
