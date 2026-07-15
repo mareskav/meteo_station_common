@@ -98,6 +98,10 @@ measurement pin.
 `meteo::readBatteryVoltage(pin, dividerRatio)` reads millivolts through the
 Arduino ESP32 core and applies the voltage divider ratio.
 
+`meteo::readBatteryVoltageAveraged(pin, dividerRatio, samples, settleDelayMs)`
+does the same measurement with an initial dummy read and multiple averaged
+samples, which is useful for high-impedance voltage dividers.
+
 `meteo::batteryPercentage(voltage)` maps a 3.0-4.2 V Li-Ion range to 0-100 % and
 clamps values outside the range.
 

@@ -15,6 +15,27 @@ inline double readBatteryVoltage(uint8_t pin, double dividerRatio) {
     return (analogReadMilliVolts(pin) / 1000.0) * dividerRatio;
 }
 
+inline double readBatteryVoltageAveraged(uint8_t pin,
+                                         double dividerRatio,
+                                         uint8_t samples = 8,
+                                         uint16_t settleDelayMs = 2) {
+    if (samples < 1) {
+        samples = 1;
+    }
+
+    (void)analogRead(pin);
+    delay(settleDelayMs);
+
+    uint32_t millivolts = 0;
+    for (uint8_t i = 0; i < samples; ++i) {
+        millivolts += analogReadMilliVolts(pin);
+        delay(settleDelayMs);
+    }
+
+    const double averageMillivolts = millivolts / static_cast<double>(samples);
+    return (averageMillivolts / 1000.0) * dividerRatio;
+}
+
 inline void setupBatteryPin(uint8_t pin) {
     analogSetPinAttenuation(pin, ADC_11db);
 }

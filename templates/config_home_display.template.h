@@ -1,6 +1,5 @@
 #pragma once
 
-#include <esp_adc_cal.h>
 #include <models/weather_models.h>
 #include <meteo_station_common/wifi.h>
 
@@ -112,5 +111,4 @@ inline RTC_DATA_ATTR WeatherPrediction weatherPrediction;
 
 
 // Global values
-inline esp_adc_cal_characteristics_t adc_chars;
 inline HomeTMEPValues homeTMEPValues;
