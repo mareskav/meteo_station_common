@@ -192,13 +192,3 @@ Copy-Item templates\config_home.template.h ..\meteo_station_home\src\config.temp
 Then keep the real `src/config.h` private in each project. The template should
 show all required macros, globals, and sections, but every credential, token,
 API key, URL, location, and device-specific value must stay as a placeholder.
-
-## Public Repo Checklist
-
-Before pushing this library to a public GitHub repository:
-
-- Run a secret scan against the repo.
-- Do not add firmware binaries.
-- Do not add `.pio`, `.vscode`, `.idea`, or generated build files.
-- Keep examples using placeholder credentials only.
-- Keep station-specific configs in the private station repositories.
