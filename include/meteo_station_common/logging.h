@@ -18,7 +18,7 @@ namespace logging_detail {
 inline constexpr size_t MAX_BATCH_LOGS = 20;
 
 struct LogEntry {
-    uint64_t timestamp;
+    uint32_t ms;
     String message;
 };
 
@@ -26,6 +26,11 @@ inline std::vector<LogEntry> logBuffer;
 
 inline void sendBatch() {
     if (logBuffer.empty()) {
+        return;
+    }
+    // Before NTP sync there is no wall clock; entries stay buffered (stamped with millis) instead of being
+    // sent with 1970 timestamps that Loki rejects.
+    if (!meteo::time_detail::timeSynced) {
         return;
     }
 
@@ -40,7 +45,9 @@ inline void sendBatch() {
     JsonArray values = stream["values"].to<JsonArray>();
     for (const auto& e : logBuffer) {
         JsonArray entry = values.add<JsonArray>();
-        entry.add(String(e.timestamp));
+        const int32_t deltaMs = int32_t(e.ms - meteo::time_detail::baseMillis);
+        const uint64_t ts = meteo::time_detail::baseTimeNs + int64_t(deltaMs) * 1000000LL;
+        entry.add(String(ts));
         entry.add(e.message);
     }
 
@@ -71,8 +78,7 @@ inline void sendBatch() {
 
 inline void bufferLog(const String& level, const String& message) {
     (void)level;
-    uint64_t ts = getTimestampNs();
-    logBuffer.push_back({ ts, message });
+    logBuffer.push_back({ millis(), message });
 
     if (logBuffer.size() >= MAX_BATCH_LOGS) {
         sendBatch();

@@ -16,6 +16,14 @@ inline constexpr uint16_t SCD41_I2C_ADDRESS = 0x62;
 inline constexpr uint16_t SCD41_POWER_DOWN_COMMAND = 0x36E0;
 inline constexpr uint16_t SCD41_WAKE_UP_COMMAND = 0x36F6;
 inline constexpr uint16_t SCD41_WAKE_UP_DELAY_MS = 30;
+// SCD41 measures 400-5000 ppm; anything far outside is a bad read (e.g. a supply dip),
+// not air. Bounds are deliberately loose so real readings are never dropped.
+inline constexpr float SCD41_MIN_PLAUSIBLE_CO2_PPM = 300.0f;
+inline constexpr float SCD41_MAX_PLAUSIBLE_CO2_PPM = 10000.0f;
+
+inline bool isPlausibleCo2(float co2Ppm) {
+    return co2Ppm >= SCD41_MIN_PLAUSIBLE_CO2_PPM && co2Ppm <= SCD41_MAX_PLAUSIBLE_CO2_PPM;
+}
 
 inline void sendRawScd41Command(TwoWire& wire, uint16_t command) {
     wire.beginTransmission(SCD41_I2C_ADDRESS);
@@ -125,10 +133,15 @@ inline bool measureScd41CO2(float& co2Ppm,
         delay(pollDelayMs);
     }
 
-    co2Ppm = sensor.getCO2();
-    sendLog("info", "CO2: " + String(co2Ppm));
+    const float measured = sensor.getCO2();
+    sendLog("info", "CO2: " + String(measured));
 
     powerDownScd41(sensor);
+    if (!isPlausibleCo2(measured)) {
+        sendLog("error", "CO2 out of range, discarding: " + String(measured));
+        return false;
+    }
+    co2Ppm = measured;
     return true;
 }
 
@@ -156,10 +169,15 @@ inline bool measureScd41SingleShotCO2(float& co2Ppm,
         delay(pollDelayMs);
     }
 
-    co2Ppm = sensor.getCO2();
-    sendLog("info", "CO2: " + String(co2Ppm));
+    const float measured = sensor.getCO2();
+    sendLog("info", "CO2: " + String(measured));
 
     powerDownScd41(sensor, false);
+    if (!isPlausibleCo2(measured)) {
+        sendLog("error", "CO2 out of range, discarding: " + String(measured));
+        return false;
+    }
+    co2Ppm = measured;
     return true;
 }
 
